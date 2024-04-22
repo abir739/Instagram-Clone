@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_clone/data/auth_methods.dart';
+import 'package:instagram_clone/methods/methods_Util.dart';
+import 'package:instagram_clone/responsives/mobile_screen.dart';
+import 'package:instagram_clone/responsives/responsive_screen.dart';
+import 'package:instagram_clone/responsives/web_screen.dart';
+import 'package:instagram_clone/screens/home_page.dart';
 import 'package:instagram_clone/screens/signUp_page.dart';
 import 'package:instagram_clone/screens/widgets/textField_input.dart';
 import 'package:instagram_clone/utils/colors.dart';
@@ -14,12 +20,38 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool isLoaing = false;
 
   @override
   void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+  }
+
+  void signIn() async {
+    setState(() {
+      isLoaing = true;
+    });
+    String resp = await AuthenticationMethods().loginUser(
+        email: _emailController.text, password: _passwordController.text);
+
+    setState(() {
+      isLoaing = false;
+    });
+
+    if (resp == 'success') {
+      // Use pushReplacement() when you want to replace the current screen entirely and prevent the user from going back to it.
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+            builder: (context) => const ResponsiveScreen(
+                  mobileScreen: MobileScreen(),
+                  webScreen: WebScreen(),
+                )),
+      );
+    } else {
+      showSnackBar(context, resp);
+    }
   }
 
   @override
@@ -62,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
 
               // login button
               InkWell(
-                onTap: () {},
+                onTap: signIn,
                 child: Container(
                   // Sets the width of the container to take up all available horizontal space.
                   width: double.infinity,
@@ -75,11 +107,16 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.all(Radius.circular(4))),
                     color: Colors.blue,
                   ),
-                  child: const Text('Log in',
-                      style:
-                          TextStyle(fontSize: 18, fontStyle: FontStyle.normal)),
+                  child: isLoaing
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Log in',
+                          style: TextStyle(
+                              fontSize: 18, fontStyle: FontStyle.normal)),
                 ),
               ),
+
               const SizedBox(height: 28),
               // OR Divider
               const Row(

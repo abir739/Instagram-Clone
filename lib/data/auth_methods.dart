@@ -1,8 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class AuthenticationMethods {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -50,4 +47,29 @@ class AuthenticationMethods {
     // Returns the result, which will either be the default error message or a success message
     return resp;
   }
+
+// Method for logging in a user
+Future<String> loginUser({
+  required String email,
+  required String password,
+ 
+}) async {
+  String resp = "error occurred";
+  try {
+    if (email.isNotEmpty && password.isNotEmpty) {
+      await _auth.signInWithEmailAndPassword(
+        email: email, 
+        password: password,
+      );
+      resp = "success";
+
+    } else {
+      resp = "Please enter valid fields";
+    }
+  } catch (e) {
+    resp = e.toString();
+  }
+  return resp;
+}
+
 }

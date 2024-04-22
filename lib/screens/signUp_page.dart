@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:instagram_clone/methods/methods_Util.dart';
+import 'package:instagram_clone/responsives/mobile_screen.dart';
+import 'package:instagram_clone/responsives/responsive_screen.dart';
+import 'package:instagram_clone/responsives/web_screen.dart';
 import 'package:instagram_clone/screens/login_page.dart';
 import 'package:instagram_clone/screens/widgets/textField_input.dart';
 import 'package:instagram_clone/utils/colors.dart';
@@ -19,6 +23,33 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _mobileNumberController = TextEditingController();
+  bool isLoading = false;
+
+  void signUp() async {
+    setState(() {
+      isLoading = true;
+    });
+    String resp = await AuthenticationMethods().SignUp(
+        email: _emailController.text,
+        password: _passwordController.text,
+        fullname: _fullNameController.text,
+        username: _userNameController.text);
+    print(resp);
+
+    setState(() {
+      isLoading = false;
+    });
+
+    if (resp != 'success') {
+      // ignore: use_build_context_synchronously
+      showSnackBar(context, resp);
+    } else {
+      
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => const ResponsiveScreen(
+              mobileScreen: MobileScreen(), webScreen: WebScreen())));
+    }
+  }
 
   @override
   void dispose() {
@@ -41,7 +72,6 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-         
                 Container(
                   height: 63, // Specify the desired height
                   child: SvgPicture.asset(
@@ -175,6 +205,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 Center(
                   child: GestureDetector(
                     onTap: () {
+                      //Use push() when you want to add a new screen to the stack and allow the user to navigate back.
+                      
                       // Navigate to another page when "Learn More" is tapped
                       // Navigator.push(
                       //   context,
@@ -205,14 +237,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 // login button
                 InkWell(
-                  onTap: () async {
-                    String resp = await AuthenticationMethods().SignUp(
-                        email: _emailController.text,
-                        password: _passwordController.text,
-                        fullname: _fullNameController.text,
-                        username: _userNameController.text);
-                    print(resp);
-                  },
+                  onTap: signUp,
                   child: Container(
                     // Sets the width of the container to take up all available horizontal space.
                     width: double.infinity,
@@ -225,12 +250,15 @@ class _SignUpPageState extends State<SignUpPage> {
                           borderRadius: BorderRadius.circular(8)),
                       color: Colors.blue,
                     ),
-                    child: const Text('Sign up',
-                        style: TextStyle(
-                            fontSize: 18, fontStyle: FontStyle.normal)),
+                    child: isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text('Sign up',
+                            style: TextStyle(
+                                fontSize: 18, fontStyle: FontStyle.normal)),
                   ),
                 ),
-            
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
