@@ -1,12 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/providres/userProvider.dart';
 import 'package:instagram_clone/responsives/mobile_screen.dart';
 import 'package:instagram_clone/responsives/responsive_screen.dart';
 import 'package:instagram_clone/responsives/web_screen.dart';
 import 'package:instagram_clone/screens/login_page.dart';
 import 'package:instagram_clone/utils/colors.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure binding is initialized
@@ -32,40 +34,47 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Instagram Clone',
-      theme:
-          ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          switch (snapshot.connectionState) {
-            case ConnectionState.none:
-              return const Text('Not connected to the stream or null');
-            case ConnectionState.waiting:
-              return const CircularProgressIndicator();
-            case ConnectionState.active:
-              if (snapshot.hasData) {
-                // If snapshot has data which means user is logged in,
-                // then we check the width of screen and accordingly display the screen layout.
-                return const ResponsiveScreen(
-                  mobileScreen: MobileScreen(),
-                  webScreen: WebScreen(),
-                );
-              } else {
-                // If the snapshot has no data, return the LoginPage.
-                return const LoginPage();
-              }
-            case ConnectionState.done:
-              return const Text('Stream has finished');
-          }
-          // If the connection state is not active or done, return LoginPage by default.
-          // return const LoginPage();
-        },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Instagram Clone',
+        theme:
+            ThemeData.dark().copyWith(scaffoldBackgroundColor: backgroundColor),
+        home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            switch (snapshot.connectionState) {
+              case ConnectionState.none:
+                return const Text('Not connected to the stream or null');
+              case ConnectionState.waiting:
+                return const CircularProgressIndicator();
+              case ConnectionState.active:
+                if (snapshot.hasData) {
+                  // If snapshot has data which means user is logged in,
+                  // then we check the width of screen and accordingly display the screen layout.
+                  return const ResponsiveScreen(
+                    mobileScreen: MobileScreen(),
+                    webScreen: WebScreen(),
+                  );
+                } else {
+                  // If the snapshot has no data, return the LoginPage.
+                  return const LoginPage();
+                }
+              case ConnectionState.done:
+                return const Text('Stream has finished');
+            }
+            // If the connection state is not active or done, return LoginPage by default.
+            // return const LoginPage();
+          },
+        ),
       ),
     );
   }

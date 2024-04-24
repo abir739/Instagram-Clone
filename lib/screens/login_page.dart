@@ -5,7 +5,6 @@ import 'package:instagram_clone/methods/methods_Util.dart';
 import 'package:instagram_clone/responsives/mobile_screen.dart';
 import 'package:instagram_clone/responsives/responsive_screen.dart';
 import 'package:instagram_clone/responsives/web_screen.dart';
-import 'package:instagram_clone/screens/home_page.dart';
 import 'package:instagram_clone/screens/signUp_page.dart';
 import 'package:instagram_clone/screens/widgets/textField_input.dart';
 import 'package:instagram_clone/utils/colors.dart';
@@ -42,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (resp == 'success') {
       // Use pushReplacement() when you want to replace the current screen entirely and prevent the user from going back to it.
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context) => const ResponsiveScreen(
