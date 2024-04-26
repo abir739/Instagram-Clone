@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:instagram_clone/models/userModel.dart';
 import 'package:instagram_clone/providres/userProvider.dart';
+import 'package:instagram_clone/utils/variablesUtil.dart';
 import 'package:provider/provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -14,32 +16,71 @@ class MobileScreen extends StatefulWidget {
 class _MobileScreenState extends State<MobileScreen> {
   int _selectedIndex = 0;
 
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _pageController.animateToPage(index,
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    UserModel? user = Provider.of<UserProvider>(context)?.fetchUser;
+    UserModel? user = Provider.of<UserProvider>(context).fetchUser;
 
-    // If user is not null, continue building the UI
     return Scaffold(
-      body: Center(
-        child: Text(user!.email), // or any other property you want to display
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            )),
+        title: SvgPicture.asset(
+          'assets/images/instagram_icon.svg',
+          height: 30,
+          // width: 30,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.black,
+            ),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.messenger_outline_rounded,
+              color: Colors.black,
+            ),
+            onPressed: () {},
+          ),
+        ],
       ),
-      // bottomNavigationBar: CurvedNavigationBar(
-      //   backgroundColor:
-      //       Colors.white, // Change this to match Instagram's background color
-      //   color: Colors.blue, // Change this to match Instagram's primary color
-      //   buttonBackgroundColor:
-      //       Colors.blue, // Change this to match Instagram's primary color
-      //   items: <Widget>[
+      body: PageView(
+          controller: _pageController,
+          // physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: pageItems),
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.black, // #405DE6
         color: Colors.white, // #C13584
-        buttonBackgroundColor: Color.fromARGB(255, 250, 131, 4), // #FBAF45
+        buttonBackgroundColor: const Color(0xFFF56040),
         items: const <Widget>[
           Icon(
             Icons.home,
@@ -52,7 +93,7 @@ class _MobileScreenState extends State<MobileScreen> {
             color: Colors.black,
           ),
           Icon(
-            Icons.add,
+            Icons.add_circle_rounded,
             size: 30,
             color: Colors.black,
           ),
