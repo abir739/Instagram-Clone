@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserModel {
   final String email;
   final String uid;
-  // final String pictue;
+  final String? photoUrl; // Make photoUrl nullable
   final String username;
   final String fullname;
   final List followers;
@@ -18,7 +18,7 @@ class UserModel {
     required this.followers,
     required this.following,
     required this.fullname,
-    // required this.pictue,
+    required this.photoUrl,
     required this.username,
   });
 
@@ -27,11 +27,10 @@ class UserModel {
         'email': email,
         'username': username,
         'fullname': fullname,
-        // 'picture': pictue,
+        'photoUrl': photoUrl,
         'followers': followers,
         'following': following,
       };
-
 
 // Data Conversion:
 // Firestore returns data as DocumentSnapshot, which needs to be converted to a format that the application can use.
@@ -46,7 +45,7 @@ class UserModel {
         followers: snapshot['followers'],
         following: snapshot['following'],
         fullname: snapshot['fullname'],
-        // pictue: snapshot['pictue'],
+        photoUrl: snapshot['photoUrl'],
         username: snapshot['username']);
   }
 }

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:instagram_clone/utils/variablesUtil.dart';
 
 class AddPostPage extends StatefulWidget {
   const AddPostPage({Key? key}) : super(key: key);
@@ -13,8 +12,35 @@ class AddPostPage extends StatefulWidget {
 
 class _AddPostPageState extends State<AddPostPage> {
   Uint8List? _file;
-  bool isLoading = false;
+  bool _isLoading = false;
+  bool _locationAdded = false;
+  bool _songAdded = false;
+  bool _taggedSomeone = false;
 
+// Function to toggle location added
+  void _toggleLocation() {
+    setState(
+      () {
+        _locationAdded = !_locationAdded;
+      },
+    );
+  }
+
+// Function to toggle song added
+  void _toggleSong() {
+    setState(() {
+      _songAdded = !_songAdded;
+    });
+  }
+
+// Function to toggle tagging someone
+  void _toggleTag() {
+    setState(() {
+      _taggedSomeone = !_taggedSomeone;
+    });
+  }
+
+// Function to show Options when select Image
   void _showImageOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -27,13 +53,18 @@ class _AddPostPageState extends State<AddPostPage> {
                 title: const Text('Take a photo from camera'),
                 onTap: () async {
                   Navigator.pop(context);
-                  final image = await ImagePicker().pickImage(
-                    source: ImageSource.camera,
-                  );
-                  if (image != null) {
-                    setState(() {
-                      _file = File(image.path).readAsBytesSync();
-                    });
+                  try {
+                    final image = await ImagePicker().pickImage(
+                      source: ImageSource.camera,
+                    );
+                    if (image != null) {
+                      setState(() {
+                        _file = File(image.path).readAsBytesSync();
+                      });
+                    }
+                  } catch (e) {
+                    // Handle the error, e.g., show an error message
+                    print('Failed to open camera: $e');
                   }
                 },
               ),
@@ -85,47 +116,97 @@ class _AddPostPageState extends State<AddPostPage> {
           )
         : Scaffold(
             body: SingleChildScrollView(
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const CircleAvatar(
-                      backgroundImage: NetworkImage(
-                          'https://images.unsplash.com/photo-1713283547186-ef7fadbd4ee6?q=80&w=1922&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width *
-                          0.4, // 40% of screen width
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Write a Caption...', // Placeholder text
-                          border: InputBorder.none, // No border
+              padding: const EdgeInsets.all(
+                  14.0), // Add padding to the entire scroll view
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment:
+                    MainAxisAlignment.start, // Adjust alignment as needed
+                crossAxisAlignment: CrossAxisAlignment
+                    .stretch, // Stretch widgets across the screen width
+                children: [
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              'https://images.unsplash.com/photo-1713283547186-ef7fadbd4ee6?q=80&w=1922&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
                         ),
-                        maxLines: 10, // Up to 10 lines
-                      ),
-                    ),
-                    SizedBox(
-                      height: 45,
-                      width: 45,
-                      child: AspectRatio(
-                        aspectRatio: 487 / 451,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              image: DecorationImage(
-                            image: NetworkImage(
-                                'https://images.unsplash.com/photo-1713283547186-ef7fadbd4ee6?q=80&w=1922&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
-                            fit: BoxFit.fill,
-                            alignment: FractionalOffset.topCenter,
-                          )),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text('Abir.ch')
+                      ]),
+                  const SizedBox(height: 20), // Add space between elements
+                  AspectRatio(
+                    aspectRatio: 450 / 450,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: MemoryImage(_file!),
+                          fit: BoxFit.fill,
+                          alignment: FractionalOffset.topCenter,
                         ),
                       ),
-                    )
-                  ],
-                ),
-              ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal:
+                            16.0), // Add horizontal padding to the text field
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Write a Caption...', // Placeholder text
+                        border: InputBorder.none, // No border
+                      ),
+                      maxLines: 3, // Up to 10 lines
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        onPressed: _toggleLocation,
+                        icon: Icon(_locationAdded
+                            ? Icons.location_on
+                            : Icons.add_location),
+                        tooltip:
+                            _locationAdded ? 'Location Added' : 'Add Location',
+                      ),
+                      IconButton(
+                        onPressed: _toggleSong,
+                        icon: Icon(_songAdded
+                            ? Icons.music_note
+                            : Icons.add_circle_outline),
+                        tooltip: _songAdded ? 'Song Added' : 'Add Song',
+                      ),
+                      IconButton(
+                        onPressed: _toggleTag,
+                        icon: Icon(
+                            _taggedSomeone ? Icons.person : Icons.person_add),
+                        tooltip:
+                            _taggedSomeone ? 'Tagged Someone' : 'Tag Someone',
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16.0), // Add vertical padding to the button
+                    child: 
+                    // Modify the post method to include additional features based on user selection
+                        ElevatedButton(
+                      onPressed: () {
+                        // Post method logic
+                        // Include additional features based on _locationAdded, _songAdded, _taggedSomeone flags
+                      },
+                      child: Text('Post'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ));
+          );
   }
 }
