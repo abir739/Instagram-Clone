@@ -35,6 +35,7 @@ class AuthenticationMethods {
           photoUrl: '',
           followers: [],
           following: [],
+          posts: [],
         );
 
         // If successful, the UserCredential object will contain information about the newly created user.

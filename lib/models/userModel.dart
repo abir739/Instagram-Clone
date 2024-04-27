@@ -11,16 +11,17 @@ class UserModel {
   final String fullname;
   final List followers;
   final List following;
+  final List posts;
 
-  const UserModel({
-    required this.email,
-    required this.uid,
-    required this.followers,
-    required this.following,
-    required this.fullname,
-    required this.photoUrl,
-    required this.username,
-  });
+  const UserModel(
+      {required this.email,
+      required this.uid,
+      required this.followers,
+      required this.following,
+      required this.fullname,
+      required this.photoUrl,
+      required this.username,
+      required this.posts});
 
   Map<String, dynamic> toJson() => {
         'uid': uid,
@@ -30,6 +31,7 @@ class UserModel {
         'photoUrl': photoUrl,
         'followers': followers,
         'following': following,
+        'posts': posts
       };
 
 // Data Conversion:
@@ -39,13 +41,17 @@ class UserModel {
   static UserModel fromSnap(DocumentSnapshot snap) {
     var snapshot = snap.data() as Map<String, dynamic>;
 
+    // Use the 'List.from' constructor to ensure a non-null List is created,
+    // even if the source is null.
     return UserModel(
-        email: snapshot['email'],
-        uid: snapshot['uid'],
-        followers: snapshot['followers'],
-        following: snapshot['following'],
-        fullname: snapshot['fullname'],
-        photoUrl: snapshot['photoUrl'],
-        username: snapshot['username']);
+      email: snapshot['email'] ?? '',
+      uid: snapshot['uid'] ?? '',
+      followers: List.from(snapshot['followers'] ?? []),
+      following: List.from(snapshot['following'] ?? []),
+      fullname: snapshot['fullname'] ?? '',
+      photoUrl: snapshot['photoUrl'],
+      username: snapshot['username'] ?? '',
+      posts: List.from(snapshot['posts'] ?? []),
+    );
   }
 }

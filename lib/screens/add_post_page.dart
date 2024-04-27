@@ -1,7 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/models/userModel.dart';
+import 'package:instagram_clone/providres/userProvider.dart';
+import 'package:provider/provider.dart';
 
 class AddPostPage extends StatefulWidget {
   const AddPostPage({Key? key}) : super(key: key);
@@ -16,7 +20,10 @@ class _AddPostPageState extends State<AddPostPage> {
   bool _locationAdded = false;
   bool _songAdded = false;
   bool _taggedSomeone = false;
+  final TextEditingController _captionController = TextEditingController();
 
+// Function to add a post
+  void addPost() {}
 // Function to toggle location added
   void _toggleLocation() {
     setState(
@@ -103,8 +110,15 @@ class _AddPostPageState extends State<AddPostPage> {
     );
   }
 
+  void dispose() {
+    super.dispose();
+    _captionController.dispose;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final UserModel? user = Provider.of<UserProvider>(context).fetchUser;
+
     return _file == null
         ? Center(
             child: ElevatedButton(
@@ -194,13 +208,13 @@ class _AddPostPageState extends State<AddPostPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 16.0), // Add vertical padding to the button
-                    child: 
-                    // Modify the post method to include additional features based on user selection
+                    child:
+                        // Modify the post method to include additional features based on user selection
                         ElevatedButton(
-                      onPressed: () {
-                        // Post method logic
-                        // Include additional features based on _locationAdded, _songAdded, _taggedSomeone flags
-                      },
+                      // Post method logic
+                      // Include additional features based on _locationAdded, _songAdded, _taggedSomeone flags
+                      onPressed: addPost,
+
                       child: Text('Post'),
                     ),
                   ),
