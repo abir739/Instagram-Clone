@@ -8,8 +8,7 @@ class StorageDataMeth {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   // Creates an instance of FirebaseAuth to interact with the Firebase Authentication service.
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // Method to upload an image to Firebase Storage.
+  
   // Method to upload an image to Firebase Storage.
   Future<String> addImageToStorage(
     String childName,
