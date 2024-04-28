@@ -32,7 +32,8 @@ class AuthenticationMethods {
           email: email,
           username: username,
           fullname: fullname,
-          photoUrl: '',
+          photoUrl:
+              'https://i.pinimg.com/564x/f0/d3/d5/f0d3d5ab30a056c0063ce7e2389d09b4.jpg',
           followers: [],
           following: [],
           posts: [],

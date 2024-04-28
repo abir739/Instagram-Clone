@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:instagram_clone/providres/userProvider.dart';
+import 'package:instagram_clone/providers/userProvider.dart';
 import 'package:provider/provider.dart';
 
 class ResponsiveScreen extends StatefulWidget {

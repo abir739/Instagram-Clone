@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagram_clone/models/userModel.dart';
-import 'package:instagram_clone/providres/userProvider.dart';
+import 'package:instagram_clone/providers/userProvider.dart';
 import 'package:instagram_clone/utils/variablesUtil.dart';
 import 'package:provider/provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';

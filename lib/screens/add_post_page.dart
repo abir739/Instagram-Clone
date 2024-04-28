@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/app_data/firebase_FirestoreMeth.dart';
+import 'package:instagram_clone/methods/methods_Util.dart';
 import 'package:instagram_clone/models/userModel.dart';
-import 'package:instagram_clone/providres/userProvider.dart';
+import 'package:instagram_clone/providers/userProvider.dart';
 import 'package:provider/provider.dart';
 
 class AddPostPage extends StatefulWidget {
@@ -23,7 +25,39 @@ class _AddPostPageState extends State<AddPostPage> {
   final TextEditingController _captionController = TextEditingController();
 
 // Function to add a post
-  void addPost() {}
+  void createPost(String uid, String username, String userImg) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String resp = await FirestoreMethode()
+          .addPost(uid, _captionController.text, username, userImg, _file!);
+
+      if (resp == "success") {
+        setState(() {
+          _isLoading = false;
+        });
+        if (context.mounted) {
+          showSnackBar(context, 'New Post Created!');
+        }
+      } else {
+        if (context.mounted) {
+          showSnackBar(context, resp);
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      // ignore: use_build_context_synchronously
+      showSnackBar(
+        context,
+        e.toString(),
+      );
+    }
+  }
+
 // Function to toggle location added
   void _toggleLocation() {
     setState(
@@ -118,6 +152,8 @@ class _AddPostPageState extends State<AddPostPage> {
   @override
   Widget build(BuildContext context) {
     final UserModel? user = Provider.of<UserProvider>(context).fetchUser;
+    final String userPhotoUrl = user?.photoUrl ??
+        'https://i.pinimg.com/564x/53/d0/0e/53d00e92639824cc33c05ae8c7b1dbc3.jpg';
 
     return _file == null
         ? Center(
@@ -130,28 +166,27 @@ class _AddPostPageState extends State<AddPostPage> {
           )
         : Scaffold(
             body: SingleChildScrollView(
-              padding: const EdgeInsets.all(
-                  14.0), // Add padding to the entire scroll view
+              padding: const EdgeInsets.all(14.0),
               child: Column(
-                // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment:
-                    MainAxisAlignment.start, // Adjust alignment as needed
-                crossAxisAlignment: CrossAxisAlignment
-                    .stretch, // Stretch widgets across the screen width
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1713283547186-ef7fadbd4ee6?q=80&w=1922&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text('Abir.ch')
-                      ]),
+                  _isLoading
+                      ? const LinearProgressIndicator()
+                      : const Padding(padding: EdgeInsets.only(top: 0.0)),
+                  Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: user?.photoUrl != null
+                          ? NetworkImage(user!.photoUrl!)
+                          : const NetworkImage(
+                              'https://i.pinimg.com/564x/53/d0/0e/53d00e92639824cc33c05ae8c7b1dbc3.jpg'),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(user!.username)
+                  ]),
                   const SizedBox(height: 20), // Add space between elements
                   AspectRatio(
                     aspectRatio: 450 / 450,
@@ -166,18 +201,15 @@ class _AddPostPageState extends State<AddPostPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal:
-                            16.0), // Add horizontal padding to the text field
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Write a Caption...', // Placeholder text
-                        border: InputBorder.none, // No border
-                      ),
-                      maxLines: 3, // Up to 10 lines
+                  TextField(
+                    controller: _captionController,
+                    decoration: const InputDecoration(
+                      hintText: 'Write a Caption...', // Placeholder text
+                      border: InputBorder.none, // No border
                     ),
+                    maxLines: 3, // Up to 10 lines
                   ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -213,9 +245,10 @@ class _AddPostPageState extends State<AddPostPage> {
                         ElevatedButton(
                       // Post method logic
                       // Include additional features based on _locationAdded, _songAdded, _taggedSomeone flags
-                      onPressed: addPost,
+                      onPressed: () =>
+                          createPost(user.uid, user.username, user.photoUrl!),
 
-                      child: Text('Post'),
+                      child: const Text('Post'),
                     ),
                   ),
                 ],

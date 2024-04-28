@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:instagram_clone/data/auth_methods.dart';
+import 'package:instagram_clone/app_data/auth_methods.dart';
 import 'package:instagram_clone/methods/methods_Util.dart';
 import 'package:instagram_clone/responsives/mobile_screen.dart';
 import 'package:instagram_clone/responsives/responsive_screen.dart';

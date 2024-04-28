@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:instagram_clone/data/auth_methods.dart';
+import 'package:instagram_clone/app_data/auth_methods.dart';
 import 'package:instagram_clone/models/userModel.dart';
 
 // Providers: Providers are classes that expose data or services to other parts of the app.

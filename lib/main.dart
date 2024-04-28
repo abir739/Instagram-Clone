@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:instagram_clone/providres/userProvider.dart';
+import 'package:instagram_clone/providers/userProvider.dart';
 import 'package:instagram_clone/responsives/mobile_screen.dart';
 import 'package:instagram_clone/responsives/responsive_screen.dart';
 import 'package:instagram_clone/responsives/web_screen.dart';

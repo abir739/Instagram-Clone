@@ -6,14 +6,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserModel {
   final String email;
   final String uid;
-  final String? photoUrl; // Make photoUrl nullable
+  String? photoUrl; // Make photoUrl nullable
   final String username;
   final String fullname;
   final List followers;
   final List following;
   final List posts;
 
-  const UserModel(
+  UserModel(
       {required this.email,
       required this.uid,
       required this.followers,
@@ -49,7 +49,7 @@ class UserModel {
       followers: List.from(snapshot['followers'] ?? []),
       following: List.from(snapshot['following'] ?? []),
       fullname: snapshot['fullname'] ?? '',
-      photoUrl: snapshot['photoUrl'],
+      photoUrl: snapshot['photoUrl'] ?? '',
       username: snapshot['username'] ?? '',
       posts: List.from(snapshot['posts'] ?? []),
     );
