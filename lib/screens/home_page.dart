@@ -1,56 +1,67 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/screens/widgets/Animated_Heart.dart';
+import 'package:instagram_clone/screens/widgets/post_comments.dart';
+import 'package:intl/intl.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      //   title: const Text(
-      //     'Instagram',
-      //     style: TextStyle(
-      //       color: Colors.black,
-      //       fontFamily: 'Billabong',
-      //       fontSize: 32.0,
-      //     ),
-      //   ),
-      //   actions: <Widget>[
-      //     IconButton(
-      //       icon: const Icon(Icons.add),
-      //       color: Colors.black,
-      //       onPressed: () {},
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(Icons.favorite),
-      //       color: Colors.black,
-      //       onPressed: () {},
-      //     ),
-      //     IconButton(
-      //       icon: const Icon(Icons.message),
-      //       color: Colors.black,
-      //       onPressed: () {},
-      //     ),
-      //   ],
-      // ),
-      body: Container(
-        child: ListView.builder(
-          itemCount: 20, // Assuming you have 20 posts
-          itemBuilder: (BuildContext context, int index) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: PostWidget(), // Custom Widget for displaying a post
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+        builder: (context,
+            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
             );
-          },
-        ),
+          }
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: PostWidget(
+                  snap: snapshot.data!.docs[index].data(),
+                ), // Custom Widget for displaying a post
+              );
+            },
+          );
+        },
       ),
     );
   }
 }
 
-class PostWidget extends StatelessWidget {
+class PostWidget extends StatefulWidget {
+  final snap;
+  const PostWidget({Key? key, required this.snap}) : super(key: key);
+
+  @override
+  State<PostWidget> createState() => _PostWidgetState();
+}
+
+class _PostWidgetState extends State<PostWidget> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  List<dynamic> currentLikes = [];
+  bool showAnimatedHeart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    currentLikes = widget.snap['likes'] ?? [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -61,17 +72,19 @@ class PostWidget extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              const Row(
+              Row(
                 children: <Widget>[
                   CircleAvatar(
                     radius: 20.0,
-                    backgroundImage:
-                        NetworkImage('https://via.placeholder.com/150'),
+                    backgroundImage: NetworkImage(
+                      widget.snap['userImg'] ??
+                          'https://i.pinimg.com/564x/71/1a/8e/711a8e93dcabf86214671996f1b397fb.jpg',
+                    ),
                   ),
-                  SizedBox(width: 8.0),
+                  const SizedBox(width: 8.0),
                   Text(
-                    'username',
-                    style: TextStyle(
+                    widget.snap['username'],
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -137,25 +150,108 @@ class PostWidget extends StatelessWidget {
             ],
           ),
         ),
-        Image.network(
-          'https://via.placeholder.com/600x400',
-          width: MediaQuery.of(context).size.width,
-          height: 300.0,
-          fit: BoxFit.cover,
+        // GestureDetector(
+        //   onDoubleTap: () {
+        //     setState(() {
+        //       if (!currentLikes.contains(_auth.currentUser!.uid)) {
+        //         currentLikes.add(_auth.currentUser!.uid);
+        //         showAnimatedHeart = true;
+        //         _playAnimation();
+        //       }
+        //       FirebaseFirestore.instance
+        //           .collection('posts')
+        //           .doc(widget.snap['postId'])
+        //           .update({'likes': currentLikes});
+        //     });
+        //   },
+        //   child: Stack(
+        //     alignment: Alignment.center,
+        //     children: [
+        //       Image.network(
+        //         widget.snap['postUrl'] ?? 'https://via.placeholder.com/600x400',
+        //         width: MediaQuery.of(context).size.width,
+        //         height: 300.0,
+        //         fit: BoxFit.cover,
+        //       ),
+        //     ],
+        //   ),
+        // ),
+        GestureDetector(
+          onDoubleTap: () {
+            setState(() {
+              if (!currentLikes.contains(_auth.currentUser!.uid)) {
+                currentLikes.add(_auth.currentUser!.uid);
+                showAnimatedHeart = true;
+                _playAnimation();
+              }
+              FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(widget.snap['postId'])
+                  .update({'likes': currentLikes});
+            });
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Image.network(
+                widget.snap['postUrl'] ?? 'https://via.placeholder.com/600x400',
+                width: MediaQuery.of(context).size.width,
+                height: 300.0,
+                fit: BoxFit.cover,
+              ),
+              if (showAnimatedHeart) AnimatedHeart(),
+            ],
+          ),
         ),
+
         Padding(
           padding: const EdgeInsets.all(5.0),
           child: Row(
-            children: [
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
               Row(
                 children: <Widget>[
+                  // the logic for incrementing the likes count when the like button is pressed
+                  // This code checks if the current user's ID is already in the list of likes for the post.
+                  // If not, it adds the ID to the list and updates the Firestore document
+                  // when the user taps the like button, it will toggle between liking and unliking the post,
+                  // and the UI will reflect the change in real-time.
                   IconButton(
-                    icon: const Icon(Icons.favorite_border),
-                    onPressed: () {},
+                    icon: Icon(
+                      currentLikes.contains(_auth.currentUser!.uid)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: currentLikes.contains(_auth.currentUser!.uid)
+                          ? Colors.red
+                          : null,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        // Toggle like status
+                        if (currentLikes.contains(_auth.currentUser!.uid)) {
+                          // Unlike post
+                          currentLikes.remove(_auth.currentUser!.uid);
+                        } else {
+                          // Like post
+                          currentLikes.add(_auth.currentUser!.uid);
+                        }
+                        // Update Firestore
+                        FirebaseFirestore.instance
+                            .collection('posts')
+                            .doc(widget.snap['postId'])
+                            .update({'likes': currentLikes});
+                      });
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.comment),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  CommentsScreen(comments: widget.snap['comments'])));
+                    },
                   ),
                   IconButton(
                     icon: const Icon(Icons.share),
@@ -163,12 +259,8 @@ class PostWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(
-                width: 190,
-              ),
               IconButton(
-                icon: const Icon(Icons
-                    .bookmark_border), // Add bookmark icon for saving the post
+                icon: const Icon(Icons.bookmark_border),
                 onPressed: () {
                   // Add functionality to save the post
                 },
@@ -176,35 +268,61 @@ class PostWidget extends StatelessWidget {
             ],
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            'Liked by username and 10 others',
-            style: TextStyle(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child:
+              // Text(
+              //   'Liked by ${widget.snap['username']} and ${widget.snap['likes'].length} others',
+              //   style: const TextStyle(
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
+              Text(
+            '${widget.snap['likes'].length} likes',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.all(8.0),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Text(
-            'Caption text here',
-            style: TextStyle(
+            widget.snap['caption'] ?? 'Caption text here',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
-            'View all 10 comments',
-            style: TextStyle(
+            '${widget.snap['comments'].length} Comments',
+            style: const TextStyle(
               color: Colors.grey,
             ),
           ),
         ),
         const SizedBox(height: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            DateFormat('dd/MM/yyyy').format(
+              DateTime.fromMillisecondsSinceEpoch(
+                widget.snap['postedDate'].seconds * 1000,
+              ),
+            ),
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
+        const SizedBox(height: 8.0),
       ],
     );
+  }
+
+  void _playAnimation() async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    setState(() {
+      showAnimatedHeart = false;
+    });
   }
 }
