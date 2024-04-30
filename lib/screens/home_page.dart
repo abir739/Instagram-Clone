@@ -249,8 +249,8 @@ class _PostWidgetState extends State<PostWidget> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  CommentsScreen(comments: widget.snap['comments'])));
+                              builder: (context) => CommentsScreen(
+                                  snap: widget.snap['postId'].toString())));
                     },
                   ),
                   IconButton(

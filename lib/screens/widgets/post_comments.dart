@@ -1,80 +1,125 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:instagram_clone/models/userModel.dart';
+import 'package:instagram_clone/providers/userProvider.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class CommentsScreen extends StatefulWidget {
-  final List<dynamic> comments;
+  final snap;
 
-  const CommentsScreen({Key? key, required this.comments}) : super(key: key);
+  const CommentsScreen({Key? key, required this.snap}) : super(key: key);
 
   @override
   _CommentsScreenState createState() => _CommentsScreenState();
 }
 
 class _CommentsScreenState extends State<CommentsScreen> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> postComment(String postId, String text, String uid,
+      String username, String userImg) async {
+    try {
+      if (text.isNotEmpty) {
+        String commentId = const Uuid().v1();
+        await _firestore
+            .collection('posts')
+            .doc(postId)
+            .collection('comments')
+            .doc(commentId)
+            .set({
+          'commentId': commentId,
+          'uid': uid,
+          'userImg': userImg,
+          'username': username,
+          'text': text,
+          'datePosted': DateTime.now()
+        });
+      } else {
+        print('Text is empty');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          // AppBar
-          Container(
-            color: Colors.grey[200],
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                Text(
-                  'Comments',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 40),
-              ],
-            ),
+    final UserModel? user = Provider.of<UserProvider>(context).fetchUser;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Comments',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.grey[200],
+        leading: IconButton(
+          icon: const Icon(
+            Icons.close,
+            color: Colors.black,
           ),
-          // Comments list
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Column(
+        children: [
           Expanded(
             child: ListView.builder(
-              itemCount: widget.comments.length,
+              itemCount: 10,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: CircleAvatar(
-                      // You can customize the avatar here
-                      ),
-                  title: Text(widget.comments[index]['username']),
-                  subtitle: Text(widget.comments[index]['comment']),
+                  leading: const CircleAvatar(),
+                  title: const Text('username'),
+                  subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('comment'),
+                      IconButton(
+                          onPressed: () {},
+                          icon: const Icon(
+                            Icons.favorite,
+                            size: 16,
+                          ))
+                    ],
+                  ),
                 );
               },
             ),
           ),
-          // Comment input field
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    user?.photoUrl ?? 'https://via.placeholder.com/600x400',
+                  ),
+                ),
+                const SizedBox(
+                  width: 10,
+                ),
                 Expanded(
                   child: TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'Add a comment...',
-                    ),
+                    decoration:
+                        const InputDecoration(hintText: 'Add comment...'),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: () {
-                    // Add comment logic here
-                  },
-                ),
+                    onPressed: () async {
+                      await postComment(
+                          widget.snap['postId'],
+                          widget.snap['text'],
+                          widget.snap['uid'],
+                          widget.snap['username'],
+                          widget.snap['userImg']);
+                    },
+                    icon: const Icon(Icons.send))
               ],
             ),
-          ),
+          )
         ],
       ),
     );
