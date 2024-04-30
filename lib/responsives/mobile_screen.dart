@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagram_clone/models/userModel.dart';
 import 'package:instagram_clone/providers/userProvider.dart';
+import 'package:instagram_clone/screens/messenger_page.dart';
+import 'package:instagram_clone/screens/notification_page.dart';
 import 'package:instagram_clone/utils/variablesUtil.dart';
 import 'package:provider/provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -53,18 +55,28 @@ class _MobileScreenState extends State<MobileScreen> {
         ),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(
-              Icons.notifications,
-              color: Colors.black,
-            ),
-            onPressed: () {},
-          ),
+              icon: const Icon(
+                Icons.notifications,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NotificationsPage()),
+                );
+              }),
           IconButton(
             icon: const Icon(
               Icons.messenger_outline_rounded,
               color: Colors.black,
             ),
-            onPressed: () {},
+            onPressed: () {
+              // Navigate to another page when "Learn More" is tapped
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MessagesScreen()),
+              );
+            },
           ),
         ],
       ),

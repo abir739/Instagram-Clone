@@ -56,21 +56,83 @@ class PostWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Padding(
-          padding: EdgeInsets.all(8.0),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              CircleAvatar(
-                radius: 20.0,
-                backgroundImage:
-                    NetworkImage('https://via.placeholder.com/150'),
+              const Row(
+                children: <Widget>[
+                  CircleAvatar(
+                    radius: 20.0,
+                    backgroundImage:
+                        NetworkImage('https://via.placeholder.com/150'),
+                  ),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'username',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 8.0),
-              Text(
-                'username',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () {
+                  // Add your options menu logic here
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        child: Wrap(
+                          children: <Widget>[
+                            ListTile(
+                              leading: const Icon(Icons.favorite),
+                              title: const Text('Add to favorites'),
+                              onTap: () {
+                                // Handle 'Add to favorites' action
+                                Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.info),
+                              title: const Text('About this account'),
+                              onTap: () {
+                                // Handle 'About this account' action
+                                Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.remove_circle),
+                              title: const Text('No longer follow'),
+                              onTap: () {
+                                // Handle 'No longer follow' action
+                                Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.visibility_off),
+                              title: const Text('Hide'),
+                              onTap: () {
+                                // Handle 'Hide' action
+                                Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.report),
+                              title: const Text('Report'),
+                              onTap: () {
+                                // Handle 'Report' action
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
@@ -82,20 +144,34 @@ class PostWidget extends StatelessWidget {
           fit: BoxFit.cover,
         ),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(5.0),
           child: Row(
-            children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () {},
+            children: [
+              Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.favorite_border),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.comment),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(
+                width: 190,
               ),
               IconButton(
-                icon: const Icon(Icons.comment),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () {},
+                icon: const Icon(Icons
+                    .bookmark_border), // Add bookmark icon for saving the post
+                onPressed: () {
+                  // Add functionality to save the post
+                },
               ),
             ],
           ),

@@ -204,10 +204,10 @@ class _AddPostPageState extends State<AddPostPage> {
                   TextField(
                     controller: _captionController,
                     decoration: const InputDecoration(
-                      hintText: 'Write a Caption...', // Placeholder text
-                      border: InputBorder.none, // No border
+                      hintText: 'Write a Caption...', 
+                      border: InputBorder.none, 
                     ),
-                    maxLines: 3, // Up to 10 lines
+                    maxLines: 3,
                   ),
 
                   Row(
