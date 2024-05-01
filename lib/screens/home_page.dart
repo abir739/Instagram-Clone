@@ -77,8 +77,10 @@ class _PostWidgetState extends State<PostWidget> {
                   CircleAvatar(
                     radius: 20.0,
                     backgroundImage: NetworkImage(
-                      widget.snap['userImg'] ??
-                          'https://i.pinimg.com/564x/71/1a/8e/711a8e93dcabf86214671996f1b397fb.jpg',
+                      widget.snap['userImg'] != null &&
+                              widget.snap['userImg'].isNotEmpty
+                          ? widget.snap['userImg']
+                          : 'https://i.pinimg.com/564x/71/1a/8e/711a8e93dcabf86214671996f1b397fb.jpg',
                     ),
                   ),
                   const SizedBox(width: 8.0),
@@ -249,8 +251,9 @@ class _PostWidgetState extends State<PostWidget> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CommentsScreen(
-                                  snap: widget.snap['postId'].toString())));
+                            builder: (context) =>
+                                CommentsScreen(postId: widget.snap['postId']),
+                          ));
                     },
                   ),
                   IconButton(
@@ -271,12 +274,7 @@ class _PostWidgetState extends State<PostWidget> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child:
-              // Text(
-              //   'Liked by ${widget.snap['username']} and ${widget.snap['likes'].length} others',
-              //   style: const TextStyle(
-              //     fontWeight: FontWeight.bold,
-              //   ),
-              // ),
+             
               Text(
             '${widget.snap['likes'].length} likes',
             style: const TextStyle(
@@ -293,15 +291,52 @@ class _PostWidgetState extends State<PostWidget> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            '${widget.snap['comments'].length} Comments',
-            style: const TextStyle(
-              color: Colors.grey,
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        //   child: Text(
+        //     '${widget.snap['comments'].length} Comments',
+        //     style: const TextStyle(
+        //       color: Colors.grey,
+        //     ),
+        //   ),
+        // ),
+
+// fetch the comments data from Firestore and then count the number of comments for that specific post
+        InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CommentsScreen(postId: widget.snap['postId']),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(widget.snap['postId'])
+                  .collection('comments')
+                  .snapshots(),
+              builder: (context,
+                  AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                }
+                int commentsCount = snapshot.data!.docs.length;
+                return Text(
+                  '$commentsCount Comments',
+                  style: const TextStyle(
+                    color: Colors.grey,
+                  ),
+                );
+              },
             ),
           ),
         ),
+
         const SizedBox(height: 8.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),

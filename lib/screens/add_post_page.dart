@@ -177,8 +177,9 @@ class _AddPostPageState extends State<AddPostPage> {
                   Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                     CircleAvatar(
                       radius: 20,
-                      backgroundImage: user?.photoUrl != null
-                          ? NetworkImage(user!.photoUrl!)
+                      backgroundImage: user?.photoUrl != null &&
+                              user!.photoUrl!.isNotEmpty
+                          ? NetworkImage(user.photoUrl!)
                           : const NetworkImage(
                               'https://i.pinimg.com/564x/53/d0/0e/53d00e92639824cc33c05ae8c7b1dbc3.jpg'),
                     ),
@@ -189,7 +190,7 @@ class _AddPostPageState extends State<AddPostPage> {
                   ]),
                   const SizedBox(height: 20), // Add space between elements
                   AspectRatio(
-                    aspectRatio: 450 / 450,
+                    aspectRatio: 400 / 380,
                     child: Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
@@ -200,12 +201,12 @@ class _AddPostPageState extends State<AddPostPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   TextField(
                     controller: _captionController,
                     decoration: const InputDecoration(
-                      hintText: 'Write a Caption...', 
-                      border: InputBorder.none, 
+                      hintText: 'Write a Caption...',
+                      border: InputBorder.none,
                     ),
                     maxLines: 3,
                   ),

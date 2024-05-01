@@ -1,30 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/models/userModel.dart';
 import 'package:instagram_clone/providers/userProvider.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class CommentsScreen extends StatefulWidget {
-  final snap;
+  final String postId;
 
-  const CommentsScreen({Key? key, required this.snap}) : super(key: key);
+  const CommentsScreen({Key? key, required this.postId}) : super(key: key);
 
   @override
   _CommentsScreenState createState() => _CommentsScreenState();
 }
 
 class _CommentsScreenState extends State<CommentsScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _commentController = TextEditingController();
 
-  Future<void> postComment(String postId, String text, String uid,
-      String username, String userImg) async {
+  Future<void> postComment(
+      String text, String uid, String username, String userImg) async {
     try {
       if (text.isNotEmpty) {
         String commentId = const Uuid().v1();
         await _firestore
             .collection('posts')
-            .doc(postId)
+            .doc(widget.postId)
             .collection('comments')
             .doc(commentId)
             .set({
@@ -33,13 +37,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
           'userImg': userImg,
           'username': username,
           'text': text,
-          'datePosted': DateTime.now()
+          'likes': [],
+          'datePosted': FieldValue.serverTimestamp() // Use server timestamp
         });
+        // Clear the comment text field after posting
+        _commentController.clear();
       } else {
         print('Text is empty');
       }
     } catch (e) {
-      print(e.toString());
+      print('Error posting comment: $e');
     }
   }
 
@@ -67,24 +74,81 @@ class _CommentsScreenState extends State<CommentsScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              itemCount: 10,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: const CircleAvatar(),
-                  title: const Text('username'),
-                  subtitle: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('comment'),
-                      IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.favorite,
-                            size: 16,
-                          ))
-                    ],
-                  ),
+            child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('posts')
+                  .doc(widget.postId)
+                  .collection('comments')
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var comment = snapshot.data!.docs[index];
+                    List<dynamic> commentLikes = comment['likes'] ?? [];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        // backgroundImage: NetworkImage(comment['userImg']),
+                        backgroundImage: NetworkImage(
+                          comment['userImg'] != null &&
+                                  comment['userImg'].isNotEmpty
+                              ? comment['userImg']
+                              : 'https://i.pinimg.com/564x/71/1a/8e/711a8e93dcabf86214671996f1b397fb.jpg',
+                        ),
+                      ),
+                      title: Text(comment['username']),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(comment['text']),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (commentLikes
+                                        .contains(_auth.currentUser!.uid)) {
+                                      commentLikes
+                                          .remove(_auth.currentUser!.uid);
+                                    } else {
+                                      commentLikes.add(_auth.currentUser!.uid);
+                                    }
+                                    FirebaseFirestore.instance
+                                        .collection('posts')
+                                        .doc(widget.postId)
+                                        .collection('comments')
+                                        .doc(comment['commentId'])
+                                        .update({'likes': commentLikes});
+                                  });
+                                },
+                                icon: Icon(
+                                  commentLikes.contains(_auth.currentUser!.uid)
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: commentLikes
+                                          .contains(_auth.currentUser!.uid)
+                                      ? Colors.red
+                                      : null,
+                                ),
+                              ),
+                              Text(
+                                DateFormat('dd/MM/yyyy').format(
+                                    (comment['datePosted'] as Timestamp)
+                                        .toDate()),
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -98,25 +162,24 @@ class _CommentsScreenState extends State<CommentsScreen> {
                     user?.photoUrl ?? 'https://via.placeholder.com/600x400',
                   ),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: TextFormField(
+                    controller: _commentController, // Assign the controller
                     decoration:
                         const InputDecoration(hintText: 'Add comment...'),
                   ),
                 ),
                 IconButton(
-                    onPressed: () async {
-                      await postComment(
-                          widget.snap['postId'],
-                          widget.snap['text'],
-                          widget.snap['uid'],
-                          widget.snap['username'],
-                          widget.snap['userImg']);
-                    },
-                    icon: const Icon(Icons.send))
+                  onPressed: () async {
+                    await postComment(
+                        _commentController.text.trim(),
+                        user!.uid,
+                        user.username,
+                        user.photoUrl ?? 'https://via.placeholder.com/600x400');
+                  },
+                  icon: const Icon(Icons.send),
+                )
               ],
             ),
           )

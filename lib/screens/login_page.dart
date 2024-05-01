@@ -68,10 +68,10 @@ class _LoginPageState extends State<LoginPage> {
               SvgPicture.asset(
                 'assets/images/instagram_icon.svg',
                 color: primaryColor,
-                height: 63,
+                height: 53,
               ),
               const SizedBox(
-                height: 60,
+                height: 50,
               ),
               TextFieldInput(
                   textFieldController: _emailController,
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 18),
               // OR Divider
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -150,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
               // Forgot Password
               GestureDetector(
                 onTap: () {},
