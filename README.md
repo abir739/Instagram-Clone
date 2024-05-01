@@ -26,7 +26,23 @@ instagram_clone is a fully-functional Instagram clone built using Flutter and Fi
 
 ## Screenshots
 
-
+<table>
+  <tr>
+    <td style="margin-right: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/1.png" alt="Screenshot 1"></td>
+    <td style="margin-left: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/2.png" alt="Screenshot 2"></td>
+    <td style="margin-right: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/3.png" alt="Screenshot 1"></td>
+  </tr>
+   <tr>
+   <td style="margin-left: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/4.png" alt="Screenshot 2"></td>
+    <td style="margin-right: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/5.png" alt="Screenshot 1"></td>
+    <td style="margin-left: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/6.png" alt="Screenshot 2"></td>
+  </tr>
+   <tr>
+    <td style="margin-right: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/7.png" alt="Screenshot 1"></td>
+    <td><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/8.png" alt="Screenshot 2"></td>
+     <td style="margin-left: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/9.png" alt="Screenshot 2"></td>
+  </tr>
+ 
 
 </table>
 
