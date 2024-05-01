@@ -24,6 +24,12 @@ instagram_clone is a fully-functional Instagram clone built using Flutter and Fi
 3. Add your Firebase configuration to the project.
 4. Run the app using `flutter run`. -->
 
+## Screenshots
+
+
+
+</table>
+
 ### Demo:
 [Live Demo](#) (Coming Soon)
 
