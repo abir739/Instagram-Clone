@@ -41,6 +41,7 @@ class _AddPostPageState extends State<AddPostPage> {
         if (context.mounted) {
           showSnackBar(context, 'New Post Created!');
         }
+        clearImage();
       } else {
         if (context.mounted) {
           showSnackBar(context, resp);
@@ -56,6 +57,12 @@ class _AddPostPageState extends State<AddPostPage> {
         e.toString(),
       );
     }
+  }
+
+  void clearImage() {
+    setState(() {
+      _file = null;
+    });
   }
 
 // Function to toggle location added
@@ -216,23 +223,33 @@ class _AddPostPageState extends State<AddPostPage> {
                     children: [
                       IconButton(
                         onPressed: _toggleLocation,
-                        icon: Icon(_locationAdded
-                            ? Icons.location_on
-                            : Icons.add_location),
+                        icon: Icon(
+                          _locationAdded
+                              ? Icons.location_on
+                              : Icons.add_location,
+                          color: _locationAdded ? Colors.red : Colors.red,
+                        ),
                         tooltip:
                             _locationAdded ? 'Location Added' : 'Add Location',
                       ),
                       IconButton(
                         onPressed: _toggleSong,
-                        icon: Icon(_songAdded
-                            ? Icons.music_note
-                            : Icons.add_circle_outline),
+                        icon: Icon(
+                          _songAdded
+                              ? Icons.music_note
+                              : Icons.music_note_outlined,
+                          color: _songAdded
+                              ? const Color.fromARGB(255, 127, 3, 243)
+                              : const Color.fromARGB(255, 127, 3, 243),
+                        ),
                         tooltip: _songAdded ? 'Song Added' : 'Add Song',
                       ),
                       IconButton(
                         onPressed: _toggleTag,
                         icon: Icon(
-                            _taggedSomeone ? Icons.person : Icons.person_add),
+                          _taggedSomeone ? Icons.person : Icons.person_add,
+                          color: _locationAdded ? Colors.blue : Colors.blue,
+                        ),
                         tooltip:
                             _taggedSomeone ? 'Tagged Someone' : 'Tag Someone',
                       ),

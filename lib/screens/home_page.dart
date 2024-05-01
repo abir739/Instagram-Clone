@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_clone/screens/widgets/Animated_Heart.dart';
+import 'package:instagram_clone/screens/widgets/delete_dialog.dart';
 import 'package:instagram_clone/screens/widgets/post_comments.dart';
 import 'package:intl/intl.dart';
 
@@ -33,7 +34,7 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: PostWidget(
                   snap: snapshot.data!.docs[index].data(),
-                ), // Custom Widget for displaying a post
+                ),
               );
             },
           );
@@ -60,6 +61,53 @@ class _PostWidgetState extends State<PostWidget> {
   void initState() {
     super.initState();
     currentLikes = widget.snap['likes'] ?? [];
+  }
+
+// Method to delete the post
+
+  Future<String> deletePost(String postId) async {
+    String resp = "Error deleting post";
+    try {
+      await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.snap['postId'])
+          .delete();
+      // Post deleted successfully, navigate back or perform any other action
+    } catch (e) {
+      print("Error deleting post: $e");
+    }
+    return resp;
+  }
+
+  Future<void> _showDeleteConfirmationDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return DeleteConfirmationDialog(
+          onDeleteConfirmed: () async {
+            String response =
+                await deletePost(widget.snap['postId'].toString());
+            if (response == "Success") {
+              return AlertDialog(
+                title: const Text("Success"),
+                content: const Text("Post deleted successfully!"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("OK"),
+                  ),
+                ],
+              );
+            } else {
+              print("Error deleting post");
+            }
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -102,6 +150,14 @@ class _PostWidgetState extends State<PostWidget> {
                       return Container(
                         child: Wrap(
                           children: <Widget>[
+                            ListTile(
+                              leading: const Icon(Icons.delete),
+                              title: const Text('Delete this Post'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                _showDeleteConfirmationDialog(); // Call function here
+                              },
+                            ),
                             ListTile(
                               leading: const Icon(Icons.favorite),
                               title: const Text('Add to favorites'),
@@ -273,9 +329,7 @@ class _PostWidgetState extends State<PostWidget> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child:
-             
-              Text(
+          child: Text(
             '${widget.snap['likes'].length} likes',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
