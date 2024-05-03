@@ -78,6 +78,15 @@ class _MobileScreenState extends State<MobileScreen> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(
+              Icons.settings,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              // Navigate to settings page
+            },
+          ),
         ],
       ),
       body: PageView(

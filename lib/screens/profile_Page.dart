@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:instagram_clone/models/userModel.dart';
@@ -21,18 +22,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // title: const Text('Profile'),
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // Navigate to settings page
-            },
-          ),
-        ],
-      ),
       body: FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
             .collection('users')
@@ -93,9 +82,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     // Follow/Unfollow logic
                   },
-                  child: Text(isFollowing ? 'Unfollow' : 'Follow'),
+                  child: Text('Edit Profil'),
                   style: ElevatedButton.styleFrom(
-                    primary: isFollowing ? Colors.grey : Colors.blue,
+                    primary: Colors.blue,
                     onPrimary: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
@@ -105,7 +94,34 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Add more widgets for bio, photos, etc.
+                const Divider(),
+                FutureBuilder(
+                  future: FirebaseFirestore.instance
+                      .collection('posts')
+                      .where('uid', isEqualTo: widget.userId)
+                      .get(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 8.0,
+                        mainAxisSpacing: 8.0,
+                      ),
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: ((context, index) {
+                        var post = snapshot.data!.docs[index];
+                        return Image.network(
+                          post['postUrl'],
+                          fit: BoxFit.cover,
+                        );
+                      }),
+                    );
+                  },
+                ),
               ],
             ),
           );
