@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:instagram_clone/models/userModel.dart';
@@ -95,11 +94,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 20),
                 const Divider(),
-                FutureBuilder(
-                  future: FirebaseFirestore.instance
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
                       .collection('posts')
                       .where('uid', isEqualTo: widget.userId)
-                      .get(),
+                      .snapshots(),
                   builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (!snapshot.hasData) {
                       return const Center(child: CircularProgressIndicator());
