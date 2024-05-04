@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:instagram_clone/models/userModel.dart';
@@ -17,6 +18,28 @@ class _ProfilePageState extends State<ProfilePage> {
   int posts = 0;
   bool isFollowing = false;
   bool isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // get post lENGTH
+      var postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      posts = postSnap.docs.length;
+
+      setState(() {});
+    } catch (e) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatColumn('Posts', user.posts.length),
+                    _buildStatColumn('Posts', posts),
                     _buildStatColumn('Followers', user.followers.length),
                     _buildStatColumn('Following', user.following.length),
                   ],
@@ -81,28 +104,32 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     // Follow/Unfollow logic
                   },
-                  child: Text('Edit Profil'),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue,
-                    onPrimary: Colors.white,
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 100, vertical: 10),
                   ),
+                  child: const Text('Edit Profil'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 const Divider(),
-                StreamBuilder(
-                  stream: FirebaseFirestore.instance
+                const SizedBox(height: 10),
+                FutureBuilder(
+                  future: FirebaseFirestore.instance
                       .collection('posts')
                       .where('uid', isEqualTo: widget.userId)
-                      .snapshots(),
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
                     }
+
                     return GridView.builder(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
@@ -110,17 +137,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
                       ),
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: ((context, index) {
-                        var post = snapshot.data!.docs[index];
+                      shrinkWrap: true,
+                      itemCount: (snapshot.data! as dynamic).docs.length,
+                      itemBuilder: (context, index) {
+                        DocumentSnapshot post =
+                            (snapshot.data! as dynamic).docs[index];
+
                         return Image.network(
                           post['postUrl'],
                           fit: BoxFit.cover,
                         );
-                      }),
+                      },
                     );
                   },
-                ),
+                )
               ],
             ),
           );
