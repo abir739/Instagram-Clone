@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:instagram_clone/models/userModel.dart';
+import 'package:instagram_clone/screens/edit_Profile_Page.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -102,18 +103,26 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // Follow/Unfollow logic
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditProfilePage(
+                                  userId: widget.userId,
+                                )));
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.blue,
+                    backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 100, vertical: 10),
                   ),
-                  child: const Text('Edit Profil'),
+                  child: const Text(
+                    'Edit Profil',
+                    style: TextStyle(fontSize: 17),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 const Divider(),

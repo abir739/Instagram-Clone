@@ -19,6 +19,29 @@ class _ProfilePageState extends State<UsersProfilePage> {
   bool isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    getData();
+  }
+
+  getData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // get post lENGTH
+      var postSnap = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('uid', isEqualTo: widget.user.uid)
+          .get();
+      posts = postSnap.docs.length;
+
+      setState(() {});
+    } catch (e) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -65,7 +88,7 @@ class _ProfilePageState extends State<UsersProfilePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatColumn('Posts', widget.user.posts.length),
+                _buildStatColumn('Posts', posts),
                 _buildStatColumn('Followers', widget.user.followers.length),
                 _buildStatColumn('Following', widget.user.following.length),
               ],
@@ -86,6 +109,41 @@ class _ProfilePageState extends State<UsersProfilePage> {
                     const EdgeInsets.symmetric(horizontal: 100, vertical: 10),
               ),
             ),
+            const SizedBox(height: 10),
+            const Divider(),
+            const SizedBox(height: 10),
+            FutureBuilder(
+              future: FirebaseFirestore.instance
+                  .collection('posts')
+                  .where('uid', isEqualTo: widget.user.uid)
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8.0,
+                    mainAxisSpacing: 8.0,
+                  ),
+                  shrinkWrap: true,
+                  itemCount: (snapshot.data! as dynamic).docs.length,
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot post =
+                        (snapshot.data! as dynamic).docs[index];
+
+                    return Image.network(
+                      post['postUrl'],
+                      fit: BoxFit.cover,
+                    );
+                  },
+                );
+              },
+            )
           ],
         ),
       ),
