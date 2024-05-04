@@ -4,6 +4,7 @@ import 'package:instagram_clone/models/userModel.dart';
 import 'package:instagram_clone/providers/userProvider.dart';
 import 'package:instagram_clone/screens/messenger_page.dart';
 import 'package:instagram_clone/screens/notification_page.dart';
+import 'package:instagram_clone/screens/settings_Page.dart';
 import 'package:instagram_clone/utils/variablesUtil.dart';
 import 'package:provider/provider.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -85,6 +86,10 @@ class _MobileScreenState extends State<MobileScreen> {
             ),
             onPressed: () {
               // Navigate to settings page
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
             },
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:instagram_clone/models/userModel.dart';
@@ -13,6 +14,7 @@ class UsersProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<UsersProfilePage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   int followers = 0;
   int following = 0;
   int posts = 0;
@@ -45,37 +47,30 @@ class _ProfilePageState extends State<UsersProfilePage> {
   Future<void> follow(String uid, String followid) async {
     try {
       DocumentSnapshot snap =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      List followings = (snap.data()! as dynamic)['following'];
+          await _firestore.collection('users').doc(uid).get();
+      List following = (snap.data()! as dynamic)['following'];
 
-      if (followings.contains(followid)) {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(followid)
-            .update({
+      if (following.contains(followid)) {
+        await _firestore.collection('users').doc(followid).update({
           'followers': FieldValue.arrayRemove([uid])
         });
 
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
-          'following': FieldValue.arrayRemove([uid])
+        await _firestore.collection('users').doc(uid).update({
+          'following': FieldValue.arrayRemove([followid])
         });
       } else {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(followid)
-            .update({
+        await _firestore.collection('users').doc(followid).update({
           'followers': FieldValue.arrayUnion([uid])
         });
 
-        await FirebaseFirestore.instance.collection('users').doc(uid).update({
-          'following': FieldValue.arrayUnion([uid])
-        });
-        setState(() {
-          isFollowing = true;
+        await _firestore.collection('users').doc(uid).update({
+          'following': FieldValue.arrayUnion([followid])
         });
       }
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
@@ -156,11 +151,12 @@ class _ProfilePageState extends State<UsersProfilePage> {
             isFollowing
                 ? ElevatedButton(
                     onPressed: () async {
-                      // Follow logic
+                      // Unfollow logic
                       await follow(FirebaseAuth.instance.currentUser!.uid,
                           widget.user.uid);
                       setState(() {
                         isFollowing = false;
+                        // Update the followers list by removing the current user's UID
                         widget.user.followers.length--;
                       });
                     },
@@ -177,10 +173,12 @@ class _ProfilePageState extends State<UsersProfilePage> {
                   )
                 : ElevatedButton(
                     onPressed: () async {
+                      // Follow logic
                       await follow(FirebaseAuth.instance.currentUser!.uid,
                           widget.user.uid);
                       setState(() {
                         isFollowing = true;
+                        // Update the followers list by adding the current user's UID
                         widget.user.followers.length++;
                       });
                     },
@@ -193,7 +191,7 @@ class _ProfilePageState extends State<UsersProfilePage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 100, vertical: 10),
                     ),
-                    child: Text('Follow'),
+                    child: const Text('Follow'),
                   ),
             const SizedBox(height: 10),
             const Divider(),
