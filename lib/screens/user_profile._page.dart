@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:instagram_clone/models/userModel.dart';
@@ -39,6 +40,64 @@ class _ProfilePageState extends State<UsersProfilePage> {
 
       setState(() {});
     } catch (e) {}
+  }
+
+  Future<void> follow(String uid, String followid) async {
+    try {
+      DocumentSnapshot snap =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      List followings = (snap.data()! as dynamic)['following'];
+
+      if (followings.contains(followid)) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(followid)
+            .update({
+          'followers': FieldValue.arrayRemove([uid])
+        });
+
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'following': FieldValue.arrayRemove([uid])
+        });
+      } else {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(followid)
+            .update({
+          'followers': FieldValue.arrayUnion([uid])
+        });
+
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'following': FieldValue.arrayUnion([uid])
+        });
+        setState(() {
+          isFollowing = true;
+        });
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> unfollow(String uid, String unfollowId) async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'followers': FieldValue.arrayRemove([unfollowId])
+      });
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(unfollowId)
+          .update({
+        'following': FieldValue.arrayRemove([uid])
+      });
+
+      setState(() {
+        isFollowing = false;
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -94,21 +153,48 @@ class _ProfilePageState extends State<UsersProfilePage> {
               ],
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Follow/Unfollow logic
-              },
-              child: Text(isFollowing ? 'Unfollow' : 'Follow'),
-              style: ElevatedButton.styleFrom(
-                primary: isFollowing ? Colors.grey : Colors.blue,
-                onPrimary: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 100, vertical: 10),
-              ),
-            ),
+            isFollowing
+                ? ElevatedButton(
+                    onPressed: () async {
+                      // Follow logic
+                      await follow(FirebaseAuth.instance.currentUser!.uid,
+                          widget.user.uid);
+                      setState(() {
+                        isFollowing = false;
+                        widget.user.followers.length--;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 10),
+                    ),
+                    child: const Text('Unfollow'),
+                  )
+                : ElevatedButton(
+                    onPressed: () async {
+                      await follow(FirebaseAuth.instance.currentUser!.uid,
+                          widget.user.uid);
+                      setState(() {
+                        isFollowing = true;
+                        widget.user.followers.length++;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 10),
+                    ),
+                    child: Text('Follow'),
+                  ),
             const SizedBox(height: 10),
             const Divider(),
             const SizedBox(height: 10),

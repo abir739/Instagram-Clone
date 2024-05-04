@@ -39,7 +39,9 @@ class _ProfilePageState extends State<ProfilePage> {
       posts = postSnap.docs.length;
 
       setState(() {});
-    } catch (e) {}
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
