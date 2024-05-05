@@ -42,12 +42,12 @@ instagram_clone is a fully-functional Instagram clone built using Flutter and Fi
     <td><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/8.png" alt="Screenshot 2"></td>
      <td style="margin-left: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/9.png" alt="Screenshot 2"></td>
   </tr>
- 
-   <tr>
+ <tr>
+    <td style="margin-right: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/13.png" alt="Screenshot 1"></td>
+    <td><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/14.png" alt="Screenshot 2"></td>
   
-    <td><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/13.png" alt="Screenshot 2"></td>
-     <td style="margin-left: 10px;"><img src="https://github.com/abir739/Instagram-Clone/blob/main/screenshots/14.png" alt="Screenshot 2"></td>
   </tr>
+ 
 </table>
 
 ### Demo:
