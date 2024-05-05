@@ -9,7 +9,7 @@ class AuthenticationMethods {
   late UserModel user;
 
   // Method for signing up a new user with the provided details.
-  Future<String> SignUp({
+  Future<String> signUp({
     required String email,
     required String password,
     required String fullname,
@@ -89,5 +89,11 @@ class AuthenticationMethods {
     } else {
       throw Exception('No user logged in');
     }
+  }
+
+// methode to sign out user
+
+  Future<void> signout() async {
+    await _auth.signOut();
   }
 }

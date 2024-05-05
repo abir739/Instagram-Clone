@@ -88,7 +88,7 @@ class _MobileScreenState extends State<MobileScreen> {
               // Navigate to settings page
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:instagram_clone/screens/widgets/Animated_Heart.dart';
 import 'package:instagram_clone/screens/widgets/delete_dialog.dart';
 import 'package:instagram_clone/screens/widgets/post_comments.dart';
+import 'package:instagram_clone/utils/colors.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,6 +19,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MediaQuery.of(context).size.width > 600
+          ? webBackgroundColor
+          : mobileBackgroundColor,
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('posts').snapshots(),
         builder: (context,
@@ -30,10 +34,18 @@ class _HomePageState extends State<HomePage> {
           return ListView.builder(
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: PostWidget(
-                  snap: snapshot.data!.docs[index].data(),
+              return Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width > 600
+                      ? MediaQuery.of(context).size.width * 0.3
+                      : 0,
+                  vertical: MediaQuery.of(context).size.width > 600 ? 15 : 0,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: PostWidget(
+                    snap: snapshot.data!.docs[index].data(),
+                  ),
                 ),
               );
             },
@@ -251,11 +263,16 @@ class _PostWidgetState extends State<PostWidget> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Image.network(
-                widget.snap['postUrl'] ?? 'https://via.placeholder.com/600x400',
-                width: MediaQuery.of(context).size.width,
-                height: 300.0,
-                fit: BoxFit.cover,
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.35,
+                width: double.infinity,
+                child: Image.network(
+                  widget.snap['postUrl'].toString(),
+                  // width: MediaQuery.of(context).size.width,
+                  height: 300.0,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
               ),
               if (showAnimatedHeart) AnimatedHeart(),
             ],

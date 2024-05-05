@@ -29,7 +29,7 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       isLoading = true;
     });
-    String resp = await AuthenticationMethods().SignUp(
+    String resp = await AuthenticationMethods().signUp(
         email: _emailController.text,
         password: _passwordController.text,
         fullname: _fullNameController.text,
