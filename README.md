@@ -50,8 +50,6 @@ instagram_clone is a fully-functional Instagram clone built using Flutter and Fi
  
 </table>
 
-[### Demo:
-[Live Demo](#) (Coming Soon)](url)
 
 <!-- ### Contributing:
 Contributions are welcome! Please check the [CONTRIBUTING.md](link-to-contributing.md) file for guidelines. -->
